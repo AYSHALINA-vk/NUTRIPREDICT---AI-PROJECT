@@ -1,0 +1,15 @@
+{
+  "user": {
+    "name": "Aysha",
+    "location": "Kanayannur, Kerala",
+    "diet_pref": "Vegetarian",
+    "daily_goal_kcal": 2000,
+    "demographics": {
+      "age": 22,
+      "gender": "F"
+    }
+  },
+  "deficits": {},
+  "recommendations": {},
+  "total_extra_kcal": 0
+}

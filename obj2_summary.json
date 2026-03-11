@@ -1,0 +1,27 @@
+{
+  "objective": 2,
+  "shape_after": [
+    645,
+    19
+  ],
+  "features_used": [
+    "Calories (kcal)",
+    "Protein (g)",
+    "Carbohydrates (g)",
+    "Fat (g)",
+    "Fiber (g)",
+    "Sugars (g)",
+    "Sodium (mg) (g)",
+    "Cholesterol (mg) (g)"
+  ],
+  "pca_variance": [
+    0.5339551841881274,
+    0.1868156392235683
+  ],
+  "deficiency_rates": {
+    "Protein (g)": 0.0,
+    "Fiber (g)": 0.0,
+    "Sodium (mg)": 0.0,
+    "Cholesterol (mg)": 0.0
+  }
+}
