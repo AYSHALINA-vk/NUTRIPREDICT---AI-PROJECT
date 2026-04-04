@@ -1,0 +1,25 @@
+[
+  {
+    "shape":[
+      645,
+      12
+    ],
+    "columns":[
+      " Food_Item",
+      "Category",
+      "Calories (kcal)",
+      "Protein (g)",
+      "Carbohydrates (g)",
+      "Fat (g)",
+      "Fiber (g)",
+      "Sugars (g)",
+      "Sodium (mg)",
+      "Cholesterol (mg)",
+      "Meal_Type",
+      "Water_Intake (ml)"
+    ],
+    "unique_foods":587,
+    "nutritional_features_present":true,
+    "criteria_met":true
+  }
+]

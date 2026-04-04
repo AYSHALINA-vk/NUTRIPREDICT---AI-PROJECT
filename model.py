@@ -1,40 +1,49 @@
-# monitor_drift.py - Run locally or in CI
+# model.py - Fixed & Clean Version
+
+import pandas as pd
 import mlflow
 import mlflow.sklearn
-from sklearn.metrics import accuracy_score, f1_score
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.multioutput import MultiOutputClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.multioutput import MultiOutputClassifier
 
-# Load model/data (assume from Obj3)
-df = pd.read_csv('preprocessed_nutri_data.csv')  # Or new appended data
-# ... (X, Y setup from Obj3 Cell 2)
+print("=== NUTRIPREDICT - LOADING / TRAINING MODEL ===")
 
-# Simulate new data (e.g., append 100 rows with noise for drift test)
-new_data = df.sample(100).copy()
-new_data['Protein (g)'] *= 1.2  # Simulate diet shift (higher protein)
+# Load data
+df = pd.read_csv('preprocessed_nutri_data.csv')
+print(f"Loaded {df.shape[0]} rows")
 
-X_new = new_data[available_features].fillna(0)
-Y_new = new_data[available_targets].astype(int)
+# Create risk columns if missing
+risk_cols = [col for col in df.columns if '_risk' in col]
 
-# Predict & Score
-Y_pred_new = model.predict(X_new)
-acc = accuracy_score(Y_new, Y_pred_new)
-f1 = f1_score(Y_new, Y_pred_new, average='macro')
+if len(risk_cols) == 0:
+    print("Creating risk labels...")
+    rda = {'Protein (g)': 16.7, 'Fiber (g)': 8.3}
+    for nut, th in rda.items():
+        if nut in df.columns:
+            df[f'{nut}_risk'] = (df[nut] < th).astype(int)
+            print(f"✅ Created {nut}_risk")
+    risk_cols = [col for col in df.columns if '_risk' in col]
 
-print(f"Current Accuracy: {acc:.2%}, F1: {f1:.2%}")
+print(f"Available risk columns: {risk_cols}")
 
-# Log to MLflow
-with mlflow.start_run(run_name="drift_check"):
-    mlflow.log_metric("accuracy", acc)
-    mlflow.log_metric("f1_score", f1)
-    if acc < 0.85:  # Threshold from proposal (target >85%)
-        print("🚨 Drift detected! Trigger retrain.")
-        mlflow.log_param("action", "retrain")
-    else:
-        print("✅ No drift—model stable.")
+# Features
+features = ['Calories (kcal)', 'Protein (g)', 'Carbohydrates (g)', 'Fat (g)', 
+            'Fiber (g)', 'Sugars (g)', 'Sodium (mg) (g)', 'Cholesterol (mg) (g)']
 
-# Run: python monitor_drift.py
-# View: mlflow ui (opens localhost:5000)
+available_features = [col for col in features if col in df.columns]
+
+X = df[available_features].fillna(0)
+Y = df[risk_cols].astype(int)
+
+print(f"Training shape -> X: {X.shape}, Y: {Y.shape}")
+
+# Train model
+model = MultiOutputClassifier(RandomForestClassifier(n_estimators=100, random_state=42))
+model.fit(X, Y)
+
+# Save to MLflow
+with mlflow.start_run(run_name="nutri_model_v1"):
+    mlflow.sklearn.log_model(model, "nutri_model")
+    print("✅ Model successfully saved to MLflow!")
+
+print("Model is ready for Streamlit app.")
