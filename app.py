@@ -554,19 +554,23 @@ inject_styles()
 
 @st.cache_data
 @st.cache_data
+@st.cache_data
 def load_food_data():
     try:
-        # Correct path for Streamlit Cloud
-        df = pd.read_csv('data/daily_food.csv')
+        df = pd.read_csv(
+            'data/daily_food.csv',
+            on_bad_lines='skip',      # Skip bad rows
+            engine='python',          # More tolerant parser
+            quotechar='"',            # Handle commas inside quotes
+            encoding='utf-8'
+        )
         df.columns = df.columns.str.strip()
-        st.success("✅ Food dataset loaded successfully!")
+        st.success(f"✅ Food dataset loaded! ({df.shape[0]} foods)")
         return df
-    except FileNotFoundError:
-        st.error("❌ Could not find dataset. Please ensure data/daily_food.csv exists.")
-        return pd.DataFrame(columns=['Food_Item', 'Calories (kcal)', 'Protein (g)', 'Fiber (g)'])
     except Exception as e:
-        st.error(f"Error loading dataset: {e}")
-        return pd.DataFrame(columns=['Food_Item'])
+        st.error(f"❌ Error loading dataset: {e}")
+        st.info("Some rows had formatting issues and were skipped.")
+        return pd.DataFrame(columns=['Food_Item', 'Calories (kcal)', 'Protein (g)', 'Fiber (g)'])
 
 
 food_df = load_food_data()
